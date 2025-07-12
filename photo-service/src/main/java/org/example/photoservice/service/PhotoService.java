@@ -1,6 +1,6 @@
 package org.example.photoservice.service;
 
-import org.example.photoservice.dto.PhotoDto;
+import org.example.photoservice.S3Properties;
 import org.example.photoservice.dto.PhotoResponseDto;
 import org.example.photoservice.exception.PhotoUploadException;
 import org.example.photoservice.mapper.PhotoMapper;
@@ -11,6 +11,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PhotoService {
@@ -28,28 +30,30 @@ public class PhotoService {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final RabbitTemplate rabbitTemplate;
+    private final S3Properties s3Properties;
 
-    public PhotoService(PhotoRepository photoRepository, S3Client s3Client, S3Presigner s3Presigner, RabbitTemplate rabbitTemplate) {
+    public PhotoService(PhotoRepository photoRepository, S3Client s3Client, S3Presigner s3Presigner, RabbitTemplate rabbitTemplate, S3Properties s3Properties) {
         this.photoRepository = photoRepository;
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
         this.rabbitTemplate = rabbitTemplate;
+        this.s3Properties = s3Properties;
     }
 
     @Transactional
-    public void uploadPhoto(PhotoDto photoDto, String userId) {
-        Photo photo = PhotoMapper.mapToPhoto(photoDto, userId);
+    public void uploadPhoto(MultipartFile file, UUID userId) {
+        Photo photo = PhotoMapper.mapToPhoto(file, userId, s3Properties.getBucketName());
         photoRepository.save(photo);
 
         try {
-            rabbitTemplate.convertAndSend("photo-exchange", "photo-upload-key", PhotoMapper.mapToEvent(photo, photoDto.getFile().getBytes()));
+            rabbitTemplate.convertAndSend("photo-exchange", "photo-upload-key", PhotoMapper.mapToEvent(photo, file.getBytes()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public PhotoResponseDto getPhoto(String s3Key){
-        Photo photo = photoRepository.findByS3Key(s3Key)
+    public PhotoResponseDto getPhoto(String s3Key, UUID userUUID){
+        Photo photo = photoRepository.findByFileNameAndUserId(s3Key, userUUID)
                 .orElseThrow(() -> new PhotoUploadException("Photo not found with key: " + s3Key));
 
         GetObjectRequest request = GetObjectRequest.builder()
@@ -67,13 +71,13 @@ public class PhotoService {
         return PhotoMapper.mapToPhotoResponse(photo, s3Url);
     }
 
-    public List<PhotoResponseDto> getPhotoPage(int page, int pageSize){
+    public List<PhotoResponseDto> getPhotoPage(int page, int pageSize, UUID userUUID) {
 
         return photoRepository.findAll(Pageable.ofSize(pageSize).withPage(page))
                 .getContent()
                 .stream()
                 .filter(photo -> photo.getPhotoStatus() == PhotoStatus.UPLOADED)
-                .map(photo -> getPhoto(photo.getS3Key()))
+                .map(photo -> getPhoto(photo.getFileName(), userUUID))
                 .toList();
     }
 

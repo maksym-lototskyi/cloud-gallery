@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -69,13 +70,14 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/register/client").hasRole("ADMIN")
                         .requestMatchers("/register/user").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults());
 
         return http.build();
     }
@@ -89,7 +91,7 @@ public class SecurityConfig {
     public RegisteredClientRepository clientRepository(){
         RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("name")
-                .clientSecret("secret")
+                .clientSecret(passwordEncoder().encode("secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .scope(OidcScopes.OPENID)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -101,30 +103,9 @@ public class SecurityConfig {
         return new InMemoryRegisteredClientRepository(client);
     }
 
-    //@Bean
-    public UserDetailsService userDetailsService(){
-        /*UserDetails user = User.builder()
-                .password("123")
-                .username("bob")
-                .roles("USER")
-                .build();*/
-
-        User user = User.builder()
-                .userId(UUID.randomUUID())
-                .roles(List.of(Role.builder()
-                        .name("USER")
-                        .build()))
-                .username("bob")
-                .password("123")
-                .build();
-
-        return new InMemoryUserDetailsManager(new CustomUserDetails(user));
-    }
-
-
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

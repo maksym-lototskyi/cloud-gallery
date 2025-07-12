@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -20,9 +21,6 @@ public class Photo {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(name = "s3_key", nullable = false, unique = true)
-    private String s3Key;
-
     @Column(name = "s3_bucket", nullable = false)
     private String s3Bucket;
 
@@ -32,10 +30,13 @@ public class Photo {
     @Enumerated(EnumType.STRING)
     @Column(name = "photo_status", nullable = false)
     private PhotoStatus photoStatus;
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private UUID userId;
 
     public Photo() {
 
+    }
+    public String getS3Key() {
+        return userId + "/" + fileName;
     }
 }

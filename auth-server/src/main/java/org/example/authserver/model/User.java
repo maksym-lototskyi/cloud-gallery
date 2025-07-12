@@ -17,10 +17,16 @@ public class User {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username", nullable = false, length = 100, unique = true)
     private String username;
+    @Column(name = "password", nullable = false)
     private String password;
+    @Column(name = "user_UUID", unique = true)
     private UUID userId;
-    @ManyToMany(mappedBy = "users",fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
 }

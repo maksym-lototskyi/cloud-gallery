@@ -1,27 +1,23 @@
 package org.example.photoservice.mapper;
 
-import org.example.photoservice.dto.PhotoDto;
 import org.example.photoservice.dto.PhotoResponseDto;
 import org.example.photoservice.events.PhotoUploadEvent;
 import org.example.photoservice.model.Photo;
 import org.example.photoservice.model.PhotoStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class PhotoMapper {
-    public static Photo mapToPhoto(PhotoDto photoDto, String clientName){
-        String name = photoDto.getPhotoName() == null ?
-                photoDto.getFile().getOriginalFilename() : photoDto.getPhotoName();
-
-        String s3Key = clientName + "/" + name;
+    public static Photo mapToPhoto(MultipartFile file, UUID userId, String bucketName){
         Photo photo = new Photo();
         photo.setPhotoStatus(PhotoStatus.PENDING);
-        photo.setS3Bucket(photoDto.getBucketName());
-        photo.setFileType(photoDto.getFile().getContentType());
-        photo.setDescription(photoDto.getDescription());
-        photo.setS3Key(s3Key);
-        photo.setFileName(name);
+        photo.setS3Bucket(bucketName);
+        photo.setFileType(file.getContentType());
+        photo.setFileName(file.getOriginalFilename());
+        photo.setUserId(userId);
         return photo;
     }
 
@@ -30,7 +26,6 @@ public class PhotoMapper {
                 .fileName(photo.getS3Key())
                 .fileUrl(s3Url.toString())
                 .fileType(photo.getFileType())
-                .description(photo.getDescription())
                 .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(photo.getUploadTime()))
                 .build();
     }
