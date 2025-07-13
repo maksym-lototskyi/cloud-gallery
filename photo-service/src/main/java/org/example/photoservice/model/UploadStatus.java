@@ -1,6 +1,6 @@
 package org.example.photoservice.model;
 
-public enum PhotoStatus {
+public enum UploadStatus {
     UPLOADED,
     PENDING
 }

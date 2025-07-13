@@ -1,23 +1,24 @@
 package org.example.photoservice.mapper;
 
 import org.example.photoservice.dto.PhotoResponseDto;
-import org.example.photoservice.events.PhotoUploadEvent;
+import org.example.photoservice.events.S3ObjectUploadEvent;
+import org.example.photoservice.events.UploadType;
+import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.Photo;
-import org.example.photoservice.model.PhotoStatus;
+import org.example.photoservice.model.UploadStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 public class PhotoMapper {
-    public static Photo mapToPhoto(MultipartFile file, UUID userId, String bucketName){
+    public static Photo mapToPhoto(MultipartFile file, Folder folder, String bucketName){
         Photo photo = new Photo();
-        photo.setPhotoStatus(PhotoStatus.PENDING);
+        photo.setUploadStatus(UploadStatus.PENDING);
         photo.setS3Bucket(bucketName);
         photo.setFileType(file.getContentType());
-        photo.setFileName(file.getOriginalFilename());
-        photo.setUserId(userId);
+        photo.setName(file.getOriginalFilename());
+        photo.setParentFolder(folder);
         return photo;
     }
 
@@ -30,13 +31,14 @@ public class PhotoMapper {
                 .build();
     }
 
-    public static PhotoUploadEvent mapToEvent(Photo photo, byte[] fileContent) {
-        return PhotoUploadEvent.builder()
-                .photoId(photo.getId())
+    public static S3ObjectUploadEvent mapToEvent(Photo photo, byte[] fileContent) {
+        return S3ObjectUploadEvent.builder()
+                .objectId(photo.getId())
                 .s3Key(photo.getS3Key())
                 .bucketName(photo.getS3Bucket())
                 .fileType(photo.getFileType())
                 .fileContent(fileContent)
+                .uploadType(UploadType.FILE)
                 .build();
     }
 }

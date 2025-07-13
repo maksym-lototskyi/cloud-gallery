@@ -19,24 +19,26 @@ public class GalleryController {
         this.photoService = photoService;
     }
 
-    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/upload/folder/{folderId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadPhotos(
             Authentication auth,
+            @PathVariable UUID folderId,
             @RequestParam("files") MultipartFile[] files
     ) {
         UUID userId = extractUserIdFromAuthentication(auth);
 
         for (MultipartFile file : files) {
-            photoService.uploadPhoto(file, userId);
+            photoService.uploadPhoto(file, folderId, userId);
         }
 
         return ResponseEntity.ok("Photos uploaded");
     }
 
-    @GetMapping(path = "photo/{s3Key}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PhotoResponseDto> getPhoto(@PathVariable String s3Key, Authentication authentication) {
+    @GetMapping(path = "photo/{fileName}/folder/{folderId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PhotoResponseDto> getPhoto(@PathVariable String fileName,
+                                                     @PathVariable UUID folderId) {
 
-        var res = photoService.getPhoto(s3Key, extractUserIdFromAuthentication(authentication));
+        var res = photoService.getPhoto(folderId, fileName);
         System.out.println(res);
         return ResponseEntity.ok(res);
     }

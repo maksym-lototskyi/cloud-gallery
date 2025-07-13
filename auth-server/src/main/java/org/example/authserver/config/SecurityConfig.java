@@ -76,7 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/register/user").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
+                //.httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults());
 
         return http.build();

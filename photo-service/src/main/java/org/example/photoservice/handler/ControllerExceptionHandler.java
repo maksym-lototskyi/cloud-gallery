@@ -1,5 +1,6 @@
 package org.example.photoservice.handler;
 
+import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.exception.PhotoUploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,14 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(PhotoUploadException.class)
     public ResponseEntity<String> handlePhotoUploadException(PhotoUploadException ex) {
         return ResponseEntity
-                .badRequest()
+                .status(ex.getStatusCode())
                 .body("File upload failed: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNotFoundException(NotFoundException ex) {
+        return ex.getMessage();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

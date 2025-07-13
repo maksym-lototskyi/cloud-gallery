@@ -1,11 +1,14 @@
 package org.example.photoservice.exception;
 
+import lombok.Getter;
+
+@Getter
 public class PhotoUploadException extends RuntimeException {
-    public PhotoUploadException(String message) {
+    private final int statusCode;
+    public PhotoUploadException(String message, int statusCode) {
         super(message);
+        this.statusCode = statusCode;
     }
 
-    public PhotoUploadException(String message, Throwable cause) {
-        super(message, cause);
-    }
+
 }

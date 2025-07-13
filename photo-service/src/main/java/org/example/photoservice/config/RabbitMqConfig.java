@@ -12,24 +12,57 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMqConfig {
     @Bean
     public Queue photoUploadedQueue(){
-        return new Queue("photo-uploaded-queue", true);
+        return new Queue("s3-uploaded-queue", true);
     }
 
     @Bean
     public Queue photoUploadFailedQueue(){
-        return new Queue("photo-upload-failed-queue", true);
+        return new Queue("s3-upload-failed-queue", true);
+    }
+    @Bean
+    public Exchange exchange() {
+        return new DirectExchange("s3-upload-exchange", true, false);
     }
 
     @Bean
-    public Exchange exchange() {
-        return new DirectExchange("photo-exchange", true, false);
+    public TopicExchange creationExchange() {
+        return new TopicExchange("folder.creation.exchange");
+    }
+
+    @Bean
+    public TopicExchange rollbackExchange() {
+        return new TopicExchange("folder.rollback.exchange");
+    }
+
+    @Bean
+    public Queue metadataCreateQueue() {
+        return new Queue("folder.create.metadata.queue");
+    }
+
+    @Bean
+    public Queue metadataRollbackQueue() {
+        return new Queue("folder.rollback.metadata.queue");
+    }
+
+    @Bean
+    public Binding metadataCreateBinding(TopicExchange creationExchange) {
+        return BindingBuilder.bind(metadataCreateQueue())
+                .to(creationExchange)
+                .with("folder.create.metadata");
+    }
+
+    @Bean
+    public Binding metadataRollbackBinding(TopicExchange rollbackExchange) {
+        return BindingBuilder.bind(metadataRollbackQueue())
+                .to(rollbackExchange)
+                .with("folder.rollback.metadata");
     }
 
     @Bean
     public Binding bindingPhotoUploaded(Queue photoUploadedQueue, Exchange exchange) {
         return BindingBuilder.bind(photoUploadedQueue)
                 .to(exchange)
-                .with("photo-uploaded-key")
+                .with("upload-success-key")
                 .noargs();
     }
 
@@ -37,7 +70,7 @@ public class RabbitMqConfig {
     public Binding bindingPhotoUploadFailed(Queue photoUploadFailedQueue, Exchange exchange) {
         return BindingBuilder.bind(photoUploadFailedQueue)
                 .to(exchange)
-                .with("photo-upload-failed-key")
+                .with("upload-failed-key")
                 .noargs();
     }
 
