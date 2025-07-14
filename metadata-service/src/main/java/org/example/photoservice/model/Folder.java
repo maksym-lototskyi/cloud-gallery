@@ -17,12 +17,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @DiscriminatorValue("FOLDER")
 public class Folder extends S3Object{
-    @Column(name = "full_path", nullable = false)
-    private String fullPath;
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<S3Object> children;
     @Column(name = "folder_uuid", nullable = false, unique = true)
     private UUID folderUUID;
     @Column(name="user_uuid", nullable = false)
     private UUID userUUID;
+
+    @Transient
+    public String getFullPath(){
+        String parentPath = getParentFolder() != null ? getParentFolder().getFullPath() : "";
+        return parentPath + getName() + "/";
+    }
 }

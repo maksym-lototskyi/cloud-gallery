@@ -45,6 +45,11 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue metadataSuccessQueue() {
+        return new Queue("folder.create.update-folder-metadata.queue");
+    }
+
+    @Bean
     public Binding metadataCreateBinding(TopicExchange creationExchange) {
         return BindingBuilder.bind(metadataCreateQueue())
                 .to(creationExchange)
@@ -56,6 +61,13 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(metadataRollbackQueue())
                 .to(rollbackExchange)
                 .with("folder.rollback.metadata");
+    }
+
+    @Bean
+    public Binding metadataSuccessBinding(TopicExchange creationExchange) {
+        return BindingBuilder.bind(metadataSuccessQueue())
+                .to(creationExchange)
+                .with("folder.create.success.metadata");
     }
 
     @Bean

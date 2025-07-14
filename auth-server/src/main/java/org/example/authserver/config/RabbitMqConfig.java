@@ -15,6 +15,10 @@ public class RabbitMqConfig {
     public TopicExchange rollbackExchange() {
         return new TopicExchange("folder.rollback.exchange");
     }
+    @Bean
+    public TopicExchange creationExchange() {
+        return new TopicExchange("folder.creation.exchange");
+    }
 
     @Bean
     public Queue userMetadataRollbackQueue() {
@@ -22,10 +26,22 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue metadataSuccessQueue() {
+        return new Queue("folder.create.update-user-metadata.queue");
+    }
+
+    @Bean
     public Binding metadataRollbackBinding() {
         return BindingBuilder.bind(userMetadataRollbackQueue())
                 .to(rollbackExchange())
                 .with("folder.rollback.*");
+    }
+
+    @Bean
+    public Binding metadataSuccessBinding() {
+        return BindingBuilder.bind(metadataSuccessQueue())
+                .to(creationExchange())
+                .with("folder.create.success.user-metadata");
     }
     @Bean
     public MessageConverter jsonMessageConverter() {

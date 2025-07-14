@@ -13,4 +13,6 @@ public interface UserRepository extends ListCrudRepository<User, Long> {
     boolean existsByUsername(String username);
 
     void deleteByUserId(UUID userUUID);
+
+    Optional<User> findByUserId(UUID userUUID);
 }

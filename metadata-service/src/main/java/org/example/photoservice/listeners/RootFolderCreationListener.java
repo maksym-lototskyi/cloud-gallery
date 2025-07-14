@@ -1,8 +1,10 @@
 package org.example.photoservice.listeners;
 
 import org.example.photoservice.S3Properties;
+import org.example.photoservice.dto.FolderRequestDto;
 import org.example.photoservice.events.S3UploadRootFolderEvent;
 import org.example.photoservice.events.S3UploadRootFolderFailedEvent;
+import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.mapper.FolderMapper;
 import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.UploadStatus;
@@ -12,6 +14,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Component
@@ -71,15 +74,20 @@ public class RootFolderCreationListener {
         folderRepository.deleteByUserUUID(userId);
     }
 
+    @RabbitListener(queues = "folder.create.update-folder-metadata.queue")
+    public void updateFolderMetadata(Long folderId){
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new NotFoundException("Folder not found with ID: " + folderId));
+        folder.setUploadStatus(UploadStatus.UPLOADED);
+        folder.setUploadTime(LocalDateTime.now());
+        folderRepository.save(folder);
+        rabbitTemplate.convertAndSend("folder.creation.exchange",
+                "folder.create.success.user-metadata",
+                folder.getUserUUID()
+        );
+    }
+
     private Folder createRootFolder(UUID userId) {
-        return Folder.builder()
-                .folderUUID(UUID.randomUUID())
-                .userUUID(userId)
-                .name("Root")
-                .parentFolder(null)
-                .fullPath(userId + "/")
-                .uploadStatus(UploadStatus.PENDING)
-                .s3Bucket(s3Properties.getBucketName())
-                .build();
+        return FolderMapper.mapToFolder("Root", null, userId, s3Properties);
     }
 }

@@ -18,10 +18,10 @@ public class S3ObjectUploadWorker {
     @RabbitListener(queues = "s3-uploaded-queue")
     public void handleS3ObjectUploaded(Long objectId) {
         System.out.println("Photo upload completed for ID: " + objectId);
-        s3ObjectRepository.findById(objectId).ifPresent(photo -> {
-            photo.setUploadStatus(UploadStatus.UPLOADED);
-            photo.setUploadTime(LocalDateTime.now());
-            s3ObjectRepository.save(photo);
+        s3ObjectRepository.findById(objectId).ifPresent(s3Object -> {
+            s3Object.setUploadStatus(UploadStatus.UPLOADED);
+            s3Object.setUploadTime(LocalDateTime.now());
+            s3ObjectRepository.save(s3Object);
         });
     }
 

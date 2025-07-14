@@ -11,6 +11,7 @@
         <option value="$PROJECT_DIR$/gallery-service/pom.xml" />
         <option value="$PROJECT_DIR$/photo-service/pom.xml" />
         <option value="$PROJECT_DIR$/file-upload-service/pom.xml" />
+        <option value="$PROJECT_DIR$/metadata-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -53,8 +53,12 @@ public class S3Worker {
                 .build();
 
         try {
-            throw new RuntimeException("Simulated failure for testing rollback");
-            //s3Client.putObject(putObjectRequest, RequestBody.empty());
+            //throw new RuntimeException("Simulated failure for testing rollback");
+            s3Client.putObject(putObjectRequest, RequestBody.empty());
+            rabbitTemplate.convertAndSend("folder.creation.exchange",
+                    "folder.create.success.metadata",
+                    event.getFolderId()
+                    );
 
         } catch (Exception e) {
             System.out.println("Failed to create root folder for user: " + event.getUserId());
