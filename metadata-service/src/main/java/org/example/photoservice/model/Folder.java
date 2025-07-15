@@ -29,4 +29,9 @@ public class Folder extends S3Object{
         String parentPath = getParentFolder() != null ? getParentFolder().getFullPath() : "";
         return parentPath + getName() + "/";
     }
+
+    @Transient
+    public String getS3Key(){
+        return getUserUUID() + "/" + getFullPath();
+    }
 }

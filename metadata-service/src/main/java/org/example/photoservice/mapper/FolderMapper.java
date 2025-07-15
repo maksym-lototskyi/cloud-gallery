@@ -9,6 +9,7 @@ import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.UploadStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class FolderMapper {
@@ -17,7 +18,7 @@ public class FolderMapper {
         return S3ObjectUploadEvent.builder()
                 .bucketName(folder.getS3Bucket())
                 .objectId(folder.getId())
-                .s3Key(folder.getFullPath())
+                .s3Key(folder.getS3Key())
                 .fileContent(null)
                 .fileType(null)
                 .uploadType(UploadType.FOLDER)
@@ -39,7 +40,9 @@ public class FolderMapper {
         return FolderResponseDto.builder()
                 .name(folder.getName())
                 .path(folder.getFullPath())
-                .parentFolderId(folder.getParentFolder() != null ? folder.getParentFolder().getId() : null)
+                .folderId(folder.getFolderUUID())
+                .parentFolderId(folder.getParentFolder() != null ? folder.getParentFolder().getFolderUUID() : null)
+                .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(folder.getUploadTime()))
                 .build();
     }
 }

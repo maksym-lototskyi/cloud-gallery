@@ -11,8 +11,8 @@
     <groupId>org.example</groupId>
     <artifactId>metadata-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>photo-service</name>
-    <description>photo-service</description>
+    <name>file-service</name>
+    <description>file-service</description>
     <url/>
     <licenses>
         <license/>

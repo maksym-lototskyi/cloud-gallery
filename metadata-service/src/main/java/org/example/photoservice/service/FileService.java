@@ -1,0 +1,94 @@
+package org.example.photoservice.service;
+
+import org.example.photoservice.S3Properties;
+import org.example.photoservice.dto.FileResponseDto;
+import org.example.photoservice.exception.NotFoundException;
+import org.example.photoservice.exception.PhotoUploadException;
+import org.example.photoservice.helpers.S3LinkPresigner;
+import org.example.photoservice.mapper.FileMapper;
+import org.example.photoservice.model.File;
+import org.example.photoservice.model.Folder;
+import org.example.photoservice.repository.FolderRepository;
+import org.example.photoservice.repository.FileRepository;
+import org.example.photoservice.model.UploadStatus;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class FileService {
+    private final FileRepository fileRepository;
+    private final FolderRepository folderRepository;
+    private final S3Client s3Client;
+    private final RabbitTemplate rabbitTemplate;
+    private final S3Properties s3Properties;
+    private final S3LinkPresigner s3LinkPresigner;
+
+    public FileService(FileRepository fileRepository, FolderRepository folderRepository, S3Client s3Client, RabbitTemplate rabbitTemplate, S3Properties s3Properties, S3LinkPresigner s3LinkPresigner) {
+        this.fileRepository = fileRepository;
+        this.folderRepository = folderRepository;
+        this.s3Client = s3Client;
+        this.s3LinkPresigner = s3LinkPresigner;
+        this.rabbitTemplate = rabbitTemplate;
+        this.s3Properties = s3Properties;
+    }
+
+    @Transactional
+    public void uploadPhoto(MultipartFile file, UUID folderId, UUID userId) {
+        Folder folder = folderRepository.findByFolderUUID(folderId)
+                .orElseThrow(() -> new PhotoUploadException("Folder not found with id: " + folderId, 404));
+
+        if(folder.getUserUUID() == null || !folder.getUserUUID().equals(userId)) {
+            throw new PhotoUploadException("You do not have permission to upload photos to this folder.", 403);
+        }
+
+        File savedFile = FileMapper.mapToPhoto(file, folder, s3Properties.getBucketName());
+        System.out.println(savedFile.getS3Bucket());
+        fileRepository.save(savedFile);
+
+        try {
+            rabbitTemplate.convertAndSend("s3-exchange", "s3-upload-key", FileMapper.mapToEvent(savedFile, file.getBytes()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public FileResponseDto getPhoto(UUID folderId, String fileName){
+        File file = fileRepository.findByParentFolderFolderUUIDAndName(folderId, fileName)
+                .orElseThrow(() -> new NotFoundException("No files with name " + fileName + " found in folder with id: " + folderId));
+
+        return FileMapper.mapToPhotoResponse(file, s3LinkPresigner.generateGetPresignURI(file.getS3Bucket(), file.getS3Key()));
+    }
+
+    public List<FileResponseDto> getPhotoPage(int page, int pageSize, UUID folderUUID) {
+
+        return fileRepository.findAll(Pageable.ofSize(pageSize).withPage(page))
+                .getContent()
+                .stream()
+                .filter(file -> file.getUploadStatus() == UploadStatus.UPLOADED)
+                .map(file -> getPhoto(folderUUID, file.getName()))
+                .toList();
+    }
+
+    public void deletePhotoById(Long id){
+        File file = fileRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Photo not found with id: " + id));
+
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(file.getS3Bucket())
+                .key(file.getS3Key())
+                .build());
+
+        fileRepository.delete(file);
+    }
+
+
+}

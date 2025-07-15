@@ -38,8 +38,10 @@ public class S3Worker {
                     RequestBody.empty();
 
             s3Client.putObject(putObjectRequest, body);
+            System.out.println("Successfully uploaded object to S3: " + event.getObjectId());
             rabbitTemplate.convertAndSend("s3-upload-exchange", "upload-success-key", event.getObjectId());
         } catch (Exception e) {
+            System.out.println("Failed to upload object to S3: " + e.getMessage());
             rabbitTemplate.convertAndSend("s3-upload-exchange", "upload-failed-key", event.getObjectId());
         }
     }
@@ -49,7 +51,7 @@ public class S3Worker {
         System.out.println("Processing folder creation for user: " + event.getUserId());
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(event.getBucketName())
-                .key(event.getUserId() + "/")
+                .key(event.getS3Key())
                 .build();
 
         try {
@@ -59,6 +61,7 @@ public class S3Worker {
                     "folder.create.success.metadata",
                     event.getFolderId()
                     );
+            System.out.println("Successfully created root folder for user: " + event.getUserId());
 
         } catch (Exception e) {
             System.out.println("Failed to create root folder for user: " + event.getUserId());

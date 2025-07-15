@@ -3,15 +3,13 @@ package org.example.photoservice.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-public class FolderResponseDto {
-    private String name;
+@SuperBuilder
+public class FolderResponseDto extends FolderItemResponseDto{
     private UUID folderId;
-    private String path;
-    private UUID parentFolderId;
 }

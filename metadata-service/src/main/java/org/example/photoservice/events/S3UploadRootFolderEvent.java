@@ -12,6 +12,6 @@ import java.util.UUID;
 public class S3UploadRootFolderEvent {
     private UUID userId;
     private Long folderId;
-    private String path;
+    private String s3Key;
     private String bucketName;
 }

@@ -10,15 +10,21 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @DiscriminatorValue(value = "PHOTO")
-public class Photo extends S3Object{
+public class File extends S3Object{
 
     @Column(name = "file_type", nullable = false)
     private String fileType;
 
-    public Photo() {
+    public File() {
 
     }
+    @Transient
     public String getS3Key() {
-        return getParentFolder().getFullPath() + "/" + getName();
+        return getParentFolder().getS3Key() + getName();
+    }
+
+    @Transient
+    public String getPathFromRoot(){
+        return getParentFolder().getFullPath() + getName();
     }
 }

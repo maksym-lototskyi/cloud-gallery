@@ -1,9 +1,7 @@
 package org.example.photoservice.listeners;
 
 import org.example.photoservice.S3Properties;
-import org.example.photoservice.dto.FolderRequestDto;
 import org.example.photoservice.events.S3UploadRootFolderEvent;
-import org.example.photoservice.events.S3UploadRootFolderFailedEvent;
 import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.mapper.FolderMapper;
 import org.example.photoservice.model.Folder;
@@ -58,12 +56,13 @@ public class RootFolderCreationListener {
                 "folder.create.file-upload.key",
                 S3UploadRootFolderEvent
                         .builder()
-                        .path(rootFolder.getFullPath())
+                        .s3Key(rootFolder.getS3Key())
                         .bucketName(rootFolder.getS3Bucket())
                         .folderId(rootFolder.getId())
                         .userId(rootFolder.getUserUUID())
                         .build()
         );
+        System.out.println(rootFolder.getS3Key());
         System.out.println("Sent S3 upload event for user ID: " + userId);
     }
 

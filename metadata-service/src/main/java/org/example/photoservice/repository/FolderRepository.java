@@ -8,7 +8,9 @@ import java.util.UUID;
 
 public interface FolderRepository extends ListCrudRepository<Folder, Long> {
     boolean existsByUserUUIDAndParentFolderIsNull(UUID userUUID);
+
     Optional<Folder> findByFolderUUID(UUID folderUUID);
+    Optional<Folder> findByUserUUIDAndParentFolderIsNull(UUID userUUID);
 
     boolean existsByUserUUID(UUID userId);
 

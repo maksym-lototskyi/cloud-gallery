@@ -4,14 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+@SuperBuilder
 @ToString
 @Getter
 @Setter
-public class PhotoResponseDto {
-    private String fileName;
+public class FileResponseDto extends FolderItemResponseDto{
     private String fileUrl;
     private String fileType;
-    private String uploadTime;
 }
