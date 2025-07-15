@@ -1,6 +1,7 @@
 package org.example.photoservice.service;
 
 import org.example.photoservice.S3Properties;
+import org.example.photoservice.dto.FolderContentDto;
 import org.example.photoservice.dto.FolderItemResponseDto;
 import org.example.photoservice.dto.FolderRequestDto;
 import org.example.photoservice.dto.FolderResponseDto;
@@ -12,6 +13,7 @@ import org.example.photoservice.repository.FolderRepository;
 import org.example.photoservice.repository.S3ObjectRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,13 +58,40 @@ public class FolderService {
         return FolderMapper.mapToFolderResponseDto(rootFolder);
     }
 
-    public List<FolderItemResponseDto> getFolderContent(UUID folderId) {
+    public FolderContentDto getFolderContent(UUID folderId) {
         Folder folder = folderRepository.findByFolderUUID(folderId)
                 .orElseThrow(() -> new NotFoundException("Folder not found with id: " + folderId));
 
-        return s3ObjectRepository.findAllByParentFolder(folder)
+        return FolderMapper.mapToFolderContentDto(folder, s3ObjectRepository.findAllByParentFolder(folder)
                 .stream()
                 .map(registry::map)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
+
+    @Transactional
+    public FolderResponseDto moveFolder(UUID folderUUID, UUID newParentId){
+        if(folderUUID.equals(newParentId)){
+            throw new IllegalArgumentException("Cannot move folder to itself");
+        }
+
+        Folder folder = folderRepository.findByFolderUUID(folderUUID)
+                .orElseThrow(() -> new NotFoundException("Folder not found with id: " + folderUUID));
+        Folder newParent = folderRepository.findByFolderUUID(newParentId)
+                .orElseThrow(() -> new NotFoundException("New parent folder not found with id: " + newParentId));
+
+        if(!folder.getParentFolder().equals(newParent)){
+            folder.setParentFolder(newParent);
+        }
+
+        return FolderMapper.mapToFolderResponseDto(folder);
+    }
+
+    @Transactional
+    public void deleteFolder(UUID folderUUID) {
+        Folder folder = folderRepository.findByFolderUUID(folderUUID)
+                .orElseThrow(() -> new NotFoundException("Folder not found with id: " + folderUUID));
+
+        folderRepository.delete(folder);
+    }
+
 }

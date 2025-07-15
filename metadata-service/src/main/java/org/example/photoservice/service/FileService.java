@@ -78,9 +78,9 @@ public class FileService {
                 .toList();
     }
 
-    public void deletePhotoById(Long id){
-        File file = fileRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Photo not found with id: " + id));
+    public void deletePhotoByFolderAndName(UUID folderId, String fileName) {
+        File file = fileRepository.findByParentFolderFolderUUIDAndName(folderId, fileName)
+                .orElseThrow(() -> new NotFoundException("No files with name " + fileName + " found in folder with id: " + folderId));
 
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(file.getS3Bucket())

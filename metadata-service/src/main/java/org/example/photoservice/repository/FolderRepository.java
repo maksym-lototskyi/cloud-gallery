@@ -15,4 +15,6 @@ public interface FolderRepository extends ListCrudRepository<Folder, Long> {
     boolean existsByUserUUID(UUID userId);
 
     void deleteByUserUUID(UUID userId);
+
+    boolean existsByUserUUIDAndFolderUUID(UUID userId, UUID folderId);
 }

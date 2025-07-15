@@ -1,5 +1,6 @@
 package org.example.photoservice.controller;
 
+import org.example.photoservice.helpers.UserFolderAccessPermissionChecker;
 import org.example.photoservice.security_customizers.CustomPrincipal;
 import org.example.photoservice.dto.FileResponseDto;
 import org.example.photoservice.service.FileService;
@@ -14,9 +15,11 @@ import java.util.UUID;
 @RestController
 public class GalleryController {
     private final FileService fileService;
+    private final UserFolderAccessPermissionChecker userFolderAccessPermissionChecker;
 
-    public GalleryController(FileService fileService) {
+    public GalleryController(FileService fileService, UserFolderAccessPermissionChecker userFolderAccessPermissionChecker) {
         this.fileService = fileService;
+        this.userFolderAccessPermissionChecker = userFolderAccessPermissionChecker;
     }
 
     @PostMapping(path = "/upload/folder/{folderId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -27,6 +30,10 @@ public class GalleryController {
     ) {
         UUID userId = extractUserIdFromAuthentication(auth);
 
+        if(!userFolderAccessPermissionChecker.hasAccessToFolder(userId, folderId)){
+            return ResponseEntity.status(403).build();
+        }
+
         for (MultipartFile file : files) {
             fileService.uploadPhoto(file, folderId, userId);
         }
@@ -36,16 +43,26 @@ public class GalleryController {
 
     @GetMapping(path = "photo/{fileName}/folder/{folderId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileResponseDto> getPhoto(@PathVariable String fileName,
-                                                    @PathVariable UUID folderId) {
-
+                                                    @PathVariable UUID folderId,
+                                                    Authentication authentication) {
+        UUID userId = extractUserIdFromAuthentication(authentication);
+        if(!userFolderAccessPermissionChecker.hasAccessToFolder(userId, folderId)){
+            return ResponseEntity.status(403).build();
+        }
         var res = fileService.getPhoto(folderId, fileName);
         System.out.println(res);
         return ResponseEntity.ok(res);
     }
 
-    @DeleteMapping(path = "photo/{id}")
-    public ResponseEntity<String> deletePhoto(@PathVariable Long id) {
-        fileService.deletePhotoById(id);
+    @DeleteMapping(path = "photo/{photoName}/folder/{folderId}")
+    public ResponseEntity<String> deletePhoto(@PathVariable String photoName,
+                                              @PathVariable UUID folderId,
+                                              Authentication authentication) {
+        UUID userId = extractUserIdFromAuthentication(authentication);
+        if(!userFolderAccessPermissionChecker.hasAccessToFolder(userId, folderId)){
+            return ResponseEntity.status(403).build();
+        }
+        fileService.deletePhotoByFolderAndName(folderId, photoName);
         return ResponseEntity.ok("Photo deleted successfully");
     }
 

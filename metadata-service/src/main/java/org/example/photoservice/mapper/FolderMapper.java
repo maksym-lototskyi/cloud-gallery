@@ -1,6 +1,8 @@
 package org.example.photoservice.mapper;
 
 import org.example.photoservice.S3Properties;
+import org.example.photoservice.dto.FolderContentDto;
+import org.example.photoservice.dto.FolderItemResponseDto;
 import org.example.photoservice.dto.FolderRequestDto;
 import org.example.photoservice.dto.FolderResponseDto;
 import org.example.photoservice.events.S3ObjectUploadEvent;
@@ -10,6 +12,7 @@ import org.example.photoservice.model.UploadStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 public class FolderMapper {
@@ -43,6 +46,16 @@ public class FolderMapper {
                 .folderId(folder.getFolderUUID())
                 .parentFolderId(folder.getParentFolder() != null ? folder.getParentFolder().getFolderUUID() : null)
                 .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(folder.getUploadTime()))
+                .build();
+    }
+
+    public static FolderContentDto mapToFolderContentDto(Folder folder, List<FolderItemResponseDto> folderItems) {
+        return FolderContentDto.builder()
+                .folderName(folder.getName())
+                .folderPath(folder.getFullPath())
+                .folderId(folder.getFolderUUID())
+                .folderItems(folderItems)
+                .parentId(folder.getParentFolder() != null ? folder.getParentFolder().getFolderUUID() : null)
                 .build();
     }
 }
