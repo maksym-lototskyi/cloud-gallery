@@ -1,6 +1,7 @@
 package org.example.photoservice.service;
 
 import org.example.photoservice.S3Properties;
+import org.example.photoservice.dto.FilePreviewResponseDto;
 import org.example.photoservice.dto.FileResponseDto;
 import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.exception.PhotoUploadException;
@@ -43,14 +44,14 @@ public class FileService {
 
     @Transactional
     public void uploadPhoto(MultipartFile file, UUID folderId, UUID userId) {
-        Folder folder = folderRepository.findByFolderUUID(folderId)
+        Folder folder = folderRepository.findByObjectUUID(folderId)
                 .orElseThrow(() -> new PhotoUploadException("Folder not found with id: " + folderId, 404));
 
         if(folder.getUserUUID() == null || !folder.getUserUUID().equals(userId)) {
             throw new PhotoUploadException("You do not have permission to upload photos to this folder.", 403);
         }
 
-        File savedFile = FileMapper.mapToPhoto(file, folder, s3Properties.getBucketName());
+        File savedFile = FileMapper.mapToFile(file, folder, s3Properties.getBucketName());
         System.out.println(savedFile.getS3Bucket());
         fileRepository.save(savedFile);
 
@@ -61,26 +62,25 @@ public class FileService {
         }
     }
 
-    public FileResponseDto getPhoto(UUID folderId, String fileName){
-        File file = fileRepository.findByParentFolderFolderUUIDAndName(folderId, fileName)
-                .orElseThrow(() -> new NotFoundException("No files with name " + fileName + " found in folder with id: " + folderId));
+    public FileResponseDto getFileDetails(UUID fileUUID){
+        File file = fileRepository.findByObjectUUID(fileUUID)
+                .orElseThrow(() -> new NotFoundException("No file found with id: " + fileUUID));
 
-        return FileMapper.mapToPhotoResponse(file, s3LinkPresigner.generateGetPresignURI(file.getS3Bucket(), file.getS3Key()));
+        return FileMapper.mapToDetails(file, s3LinkPresigner.generateGetPresignURI(file.getS3Bucket(), file.getS3Key()));
     }
 
-    public List<FileResponseDto> getPhotoPage(int page, int pageSize, UUID folderUUID) {
+    public List<FilePreviewResponseDto> getFilePage(UUID userId, int page, int pageSize) {
 
-        return fileRepository.findAll(Pageable.ofSize(pageSize).withPage(page))
+        return fileRepository.findAllByUploadStatusAndUserUUID(UploadStatus.UPLOADED, userId, Pageable.ofSize(pageSize).withPage(page))
                 .getContent()
                 .stream()
-                .filter(file -> file.getUploadStatus() == UploadStatus.UPLOADED)
-                .map(file -> getPhoto(folderUUID, file.getName()))
+                .map(FileMapper::mapToFilePreview)
                 .toList();
     }
 
-    public void deletePhotoByFolderAndName(UUID folderId, String fileName) {
-        File file = fileRepository.findByParentFolderFolderUUIDAndName(folderId, fileName)
-                .orElseThrow(() -> new NotFoundException("No files with name " + fileName + " found in folder with id: " + folderId));
+    public void deleteFileById(UUID objectId) {
+        File file = fileRepository.findByObjectUUID(objectId)
+                .orElseThrow(() -> new NotFoundException("No file found with id: " + objectId));
 
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(file.getS3Bucket())

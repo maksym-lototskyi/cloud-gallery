@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @DiscriminatorValue(value = "PHOTO")
-public class File extends S3Object{
+public class File extends FolderItem {
 
     @Column(name = "file_type", nullable = false)
     private String fileType;

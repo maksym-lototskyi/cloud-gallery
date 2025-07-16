@@ -1,15 +1,13 @@
 package org.example.photoservice.mapper;
 
 import org.example.photoservice.S3Properties;
-import org.example.photoservice.dto.FolderContentDto;
+import org.example.photoservice.dto.FolderContentResponseDto;
 import org.example.photoservice.dto.FolderItemResponseDto;
-import org.example.photoservice.dto.FolderRequestDto;
 import org.example.photoservice.dto.FolderResponseDto;
 import org.example.photoservice.events.S3ObjectUploadEvent;
 import org.example.photoservice.events.UploadType;
 import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.UploadStatus;
-import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -30,7 +28,7 @@ public class FolderMapper {
 
     public static Folder mapToFolder(String name, Folder parent, UUID userId, S3Properties s3Properties) {
         return Folder.builder()
-                .folderUUID(UUID.randomUUID())
+                .objectUUID(UUID.randomUUID())
                 .userUUID(userId)
                 .name(name)
                 .parentFolder(parent)
@@ -42,20 +40,19 @@ public class FolderMapper {
     public static FolderResponseDto mapToFolderResponseDto(Folder folder) {
         return FolderResponseDto.builder()
                 .name(folder.getName())
-                .path(folder.getFullPath())
-                .folderId(folder.getFolderUUID())
-                .parentFolderId(folder.getParentFolder() != null ? folder.getParentFolder().getFolderUUID() : null)
+                .fileItemId(folder.getObjectUUID())
+                .parentFolderId(folder.getParentFolder() != null ? folder.getParentFolder().getObjectUUID() : null)
                 .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(folder.getUploadTime()))
                 .build();
     }
 
-    public static FolderContentDto mapToFolderContentDto(Folder folder, List<FolderItemResponseDto> folderItems) {
-        return FolderContentDto.builder()
+    public static FolderContentResponseDto mapToFolderContentDto(Folder folder, List<FolderItemResponseDto> folderItems) {
+        return FolderContentResponseDto.builder()
                 .folderName(folder.getName())
                 .folderPath(folder.getFullPath())
-                .folderId(folder.getFolderUUID())
+                .folderId(folder.getObjectUUID())
                 .folderItems(folderItems)
-                .parentId(folder.getParentFolder() != null ? folder.getParentFolder().getFolderUUID() : null)
+                .parentId(folder.getParentFolder() != null ? folder.getParentFolder().getObjectUUID() : null)
                 .build();
     }
 }

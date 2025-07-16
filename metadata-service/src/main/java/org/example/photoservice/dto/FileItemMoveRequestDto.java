@@ -2,6 +2,7 @@ package org.example.photoservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.photoservice.validation.Movable;
@@ -12,17 +13,14 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @UniqueNameInFolder
 @Validated
-public class FolderRequestDto implements Movable {
-    @NotBlank(message = "Folder name cannot be blank")
-    private String name;
-    @NotNull(message = "Parent folder ID cannot be null")
+public class FileItemMoveRequestDto implements Movable {
+    @NotNull
+    private UUID sourceFolderId;
+    @NotNull
     private UUID newParentFolderId;
-
-    @Override
-    public String getFolderItemName() {
-        return name;
-    }
-
+    @NotBlank
+    private String folderItemName;
 }

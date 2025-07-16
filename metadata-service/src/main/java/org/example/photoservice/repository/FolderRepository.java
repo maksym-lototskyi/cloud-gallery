@@ -9,12 +9,12 @@ import java.util.UUID;
 public interface FolderRepository extends ListCrudRepository<Folder, Long> {
     boolean existsByUserUUIDAndParentFolderIsNull(UUID userUUID);
 
-    Optional<Folder> findByFolderUUID(UUID folderUUID);
+    Optional<Folder> findByObjectUUID(UUID folderUUID);
     Optional<Folder> findByUserUUIDAndParentFolderIsNull(UUID userUUID);
 
     boolean existsByUserUUID(UUID userId);
 
     void deleteByUserUUID(UUID userId);
 
-    boolean existsByUserUUIDAndFolderUUID(UUID userId, UUID folderId);
+    boolean existsByUserUUIDAndObjectUUID(UUID userId, UUID folderId);
 }

@@ -11,5 +11,4 @@ import java.util.UUID;
 @Setter
 @SuperBuilder
 public class FolderResponseDto extends FolderItemResponseDto{
-    private UUID folderId;
 }

@@ -2,11 +2,13 @@ package org.example.photoservice.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
+@ToString
 @Getter
 @Setter
-public class FileResponseDto extends FilePreviewResponseDto{
-    private String url;
+public class FilePreviewResponseDto extends FolderItemResponseDto{
+    private String fileType;
 }

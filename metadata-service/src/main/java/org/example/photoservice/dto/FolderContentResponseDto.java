@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class FolderContentDto {
+public class FolderContentResponseDto {
     List<FolderItemResponseDto> folderItems;
     String folderName;
     UUID parentId;

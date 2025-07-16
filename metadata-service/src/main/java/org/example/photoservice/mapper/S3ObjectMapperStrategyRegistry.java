@@ -1,7 +1,7 @@
 package org.example.photoservice.mapper;
 
 import org.example.photoservice.dto.FolderItemResponseDto;
-import org.example.photoservice.model.S3Object;
+import org.example.photoservice.model.FolderItem;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,12 +14,12 @@ public class S3ObjectMapperStrategyRegistry {
         this.strategies = strategies;
     }
 
-    public FolderItemResponseDto map(S3Object s3Object){
+    public FolderItemResponseDto map(FolderItem folderItem){
         for (S3ObjectMapperStrategy strategy : strategies) {
-            if (strategy.supports(s3Object)) {
-                return strategy.map(s3Object);
+            if (strategy.supports(folderItem)) {
+                return strategy.map(folderItem);
             }
         }
-        throw new IllegalArgumentException("No suitable mapper found for S3Object type: " + s3Object.getClass().getName());
+        throw new IllegalArgumentException("No suitable mapper found for S3Object type: " + folderItem.getClass().getName());
     }
 }

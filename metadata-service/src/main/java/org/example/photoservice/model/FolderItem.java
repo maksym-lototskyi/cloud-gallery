@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "object_type")
-public abstract class S3Object {
+public abstract class FolderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,4 +35,8 @@ public abstract class S3Object {
     private Folder parentFolder;
     @Column(name = "s3_bucket", nullable = false)
     private String s3Bucket;
+    @Column(name = "object_uuid", nullable = false, unique = true)
+    private UUID objectUUID;
+    @Column(name="user_uuid", nullable = false)
+    private UUID userUUID;
 }

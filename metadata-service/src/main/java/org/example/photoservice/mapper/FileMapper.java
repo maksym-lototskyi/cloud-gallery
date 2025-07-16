@@ -1,5 +1,6 @@
 package org.example.photoservice.mapper;
 
+import org.example.photoservice.dto.FilePreviewResponseDto;
 import org.example.photoservice.dto.FileResponseDto;
 import org.example.photoservice.events.S3ObjectUploadEvent;
 import org.example.photoservice.events.UploadType;
@@ -10,26 +11,37 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class FileMapper {
-    public static File mapToPhoto(MultipartFile file, Folder folder, String bucketName){
-        File photo = new File();
-        photo.setUploadStatus(UploadStatus.PENDING);
-        photo.setS3Bucket(bucketName);
-        photo.setFileType(file.getContentType());
-        photo.setName(file.getOriginalFilename());
-        photo.setParentFolder(folder);
-        return photo;
+    public static File mapToFile(MultipartFile file, Folder folder, String bucketName){
+        File fileEntity = new File();
+        fileEntity.setUploadStatus(UploadStatus.PENDING);
+        fileEntity.setS3Bucket(bucketName);
+        fileEntity.setFileType(file.getContentType());
+        fileEntity.setName(file.getOriginalFilename());
+        fileEntity.setParentFolder(folder);
+        fileEntity.setObjectUUID(UUID.randomUUID());
+        fileEntity.setUserUUID(folder.getUserUUID());
+        return fileEntity;
     }
 
-    public static FileResponseDto mapToPhotoResponse(File file, URL s3Url) {
-        return FileResponseDto.builder()
-                .path(file.getPathFromRoot())
-                .parentFolderId(file.getParentFolder().getFolderUUID())
+    public static FilePreviewResponseDto mapToFilePreview(File file) {
+        return FilePreviewResponseDto.builder()
+                .parentFolderId(file.getParentFolder().getObjectUUID())
                 .name(file.getName())
-                .fileUrl(s3Url.toString())
                 .fileType(file.getFileType())
                 .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(file.getUploadTime()))
+                .build();
+    }
+
+    public static FileResponseDto mapToDetails(File file, URL url){
+        return FileResponseDto.builder()
+                .parentFolderId(file.getParentFolder().getObjectUUID())
+                .name(file.getName())
+                .fileType(file.getFileType())
+                .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(file.getUploadTime()))
+                .url(url.toString())
                 .build();
     }
 
