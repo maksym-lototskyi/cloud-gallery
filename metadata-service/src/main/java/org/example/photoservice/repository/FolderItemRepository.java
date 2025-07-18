@@ -9,10 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface FolderItemRepository extends ListCrudRepository<FolderItem, Long> {
-    List<FolderItem> findAllByParentFolder(Folder folder);
+    List<FolderItem> findAllByParentFolderAndUploadTimeIsNotNull(Folder folder);
 
 
     Optional<FolderItem> findByParentFolderObjectUUIDAndName(UUID folderUUID, String name);
+    Optional<FolderItem> findByObjectUUID(UUID objectUUID);
 
     boolean existsByUserUUIDAndObjectUUID(UUID userId, UUID folderItemId);
 

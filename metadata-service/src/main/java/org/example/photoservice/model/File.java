@@ -14,17 +14,11 @@ public class File extends FolderItem {
 
     @Column(name = "file_type", nullable = false)
     private String fileType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "photo_status", nullable = false)
+    private UploadStatus uploadStatus;
 
     public File() {
 
-    }
-    @Transient
-    public String getS3Key() {
-        return getParentFolder().getS3Key() + getName();
-    }
-
-    @Transient
-    public String getPathFromRoot(){
-        return getParentFolder().getFullPath() + getName();
     }
 }

@@ -13,21 +13,7 @@ public class RabbitMqConfig {
     public Queue s3ObjectQueue() {
         return new Queue("s3-object-queue", true);
     }
-    @Bean
-    public Queue fileuploadCreateQueue() {
-        return new Queue("folder.create.file-upload.queue");
-    }
-    @Bean
-    public TopicExchange creationExchange() {
-        return new TopicExchange("folder.creation.exchange");
-    }
 
-    @Bean
-    public Binding metadataCreateBinding() {
-        return BindingBuilder.bind(fileuploadCreateQueue())
-                .to(creationExchange())
-                .with("folder.create.file-upload.key");
-    }
 
     @Bean
     public Exchange exchange(){

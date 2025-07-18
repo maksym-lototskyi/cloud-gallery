@@ -26,10 +26,6 @@ public abstract class FolderItem {
     @Column(name = "upload_time")
     private LocalDateTime uploadTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "photo_status", nullable = false)
-    private UploadStatus uploadStatus;
-
     @ManyToOne
     @JoinColumn(name = "folder_id")
     private Folder parentFolder;
@@ -39,4 +35,11 @@ public abstract class FolderItem {
     private UUID objectUUID;
     @Column(name="user_uuid", nullable = false)
     private UUID userUUID;
+
+    @Transient
+    public String getFullPath(){
+        String parentPath = getParentFolder() != null ? getParentFolder().getFullPath() : "";
+        return parentPath + getName();
+    }
+
 }

@@ -18,7 +18,12 @@ public class FolderRequestDto implements Movable {
     @NotBlank(message = "Folder name cannot be blank")
     private String name;
     @NotNull(message = "Parent folder ID cannot be null")
-    private UUID newParentFolderId;
+    private UUID parentFolderId;
+
+    @Override
+    public UUID getNewParentFolderId() {
+        return parentFolderId;
+    }
 
     @Override
     public String getFolderItemName() {

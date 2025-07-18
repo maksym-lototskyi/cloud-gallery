@@ -12,4 +12,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
     Page<File> findAllByUploadStatusAndUserUUID(UploadStatus uploadStatus, UUID userId, Pageable pageable);
 
     Optional<File> findByObjectUUID(UUID objectUUID);
+
+    boolean existsByParentFolderObjectUUIDAndName(UUID folderId, String originalFilename);
 }

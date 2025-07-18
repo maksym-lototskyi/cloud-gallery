@@ -5,6 +5,7 @@ import org.example.photoservice.dto.FilePreviewResponseDto;
 import org.example.photoservice.dto.FileResponseDto;
 import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.exception.PhotoUploadException;
+import org.example.photoservice.helpers.FileUtils;
 import org.example.photoservice.helpers.S3LinkPresigner;
 import org.example.photoservice.mapper.FileMapper;
 import org.example.photoservice.model.File;
@@ -43,30 +44,35 @@ public class FileService {
     }
 
     @Transactional
-    public void uploadPhoto(MultipartFile file, UUID folderId, UUID userId) {
+    public void uploadPhoto(MultipartFile file, UUID folderId) {
         Folder folder = folderRepository.findByObjectUUID(folderId)
-                .orElseThrow(() -> new PhotoUploadException("Folder not found with id: " + folderId, 404));
+                .orElseThrow(() -> new NotFoundException("Folder with id " + folderId + " not found"));
 
-        if(folder.getUserUUID() == null || !folder.getUserUUID().equals(userId)) {
-            throw new PhotoUploadException("You do not have permission to upload photos to this folder.", 403);
-        }
+        File fileToSave = FileMapper.mapToFile(file, folder, s3Properties.getBucketName());
 
-        File savedFile = FileMapper.mapToFile(file, folder, s3Properties.getBucketName());
-        System.out.println(savedFile.getS3Bucket());
-        fileRepository.save(savedFile);
+        adjustFileName(file, folderId, fileToSave);
+        fileRepository.save(fileToSave);
 
         try {
-            rabbitTemplate.convertAndSend("s3-exchange", "s3-upload-key", FileMapper.mapToEvent(savedFile, file.getBytes()));
+            rabbitTemplate.convertAndSend("s3-exchange", "s3-upload-key", FileMapper.mapToEvent(fileToSave, file.getBytes()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public FileResponseDto getFileDetails(UUID fileUUID){
+    private void adjustFileName(MultipartFile file, UUID folderId, File fileToSave) {
+        String newName = FileUtils.generateUniqueFileName(
+                file.getOriginalFilename(),
+                (n) -> fileRepository.existsByParentFolderObjectUUIDAndName(folderId, n)
+        );
+        fileToSave.setName(newName);
+    }
+
+    public FileResponseDto getFileDetails(UUID fileUUID) {
         File file = fileRepository.findByObjectUUID(fileUUID)
                 .orElseThrow(() -> new NotFoundException("No file found with id: " + fileUUID));
 
-        return FileMapper.mapToDetails(file, s3LinkPresigner.generateGetPresignURI(file.getS3Bucket(), file.getS3Key()));
+        return FileMapper.mapToDetails(file, s3LinkPresigner.generateGetPresignURI(file.getS3Bucket(), file.getObjectUUID().toString()));
     }
 
     public List<FilePreviewResponseDto> getFilePage(UUID userId, int page, int pageSize) {
@@ -84,7 +90,7 @@ public class FileService {
 
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(file.getS3Bucket())
-                .key(file.getS3Key())
+                .key(file.getObjectUUID().toString())
                 .build());
 
         fileRepository.delete(file);

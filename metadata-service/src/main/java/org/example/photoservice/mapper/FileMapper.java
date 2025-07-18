@@ -3,7 +3,6 @@ package org.example.photoservice.mapper;
 import org.example.photoservice.dto.FilePreviewResponseDto;
 import org.example.photoservice.dto.FileResponseDto;
 import org.example.photoservice.events.S3ObjectUploadEvent;
-import org.example.photoservice.events.UploadType;
 import org.example.photoservice.model.File;
 import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.UploadStatus;
@@ -31,6 +30,7 @@ public class FileMapper {
                 .parentFolderId(file.getParentFolder().getObjectUUID())
                 .name(file.getName())
                 .fileType(file.getFileType())
+                .fileItemId(file.getObjectUUID())
                 .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(file.getUploadTime()))
                 .build();
     }
@@ -40,6 +40,7 @@ public class FileMapper {
                 .parentFolderId(file.getParentFolder().getObjectUUID())
                 .name(file.getName())
                 .fileType(file.getFileType())
+                .fileItemId(file.getObjectUUID())
                 .uploadTime(DateTimeFormatter.ofPattern("hh:mm - dd.MM.yyyy").format(file.getUploadTime()))
                 .url(url.toString())
                 .build();
@@ -48,11 +49,10 @@ public class FileMapper {
     public static S3ObjectUploadEvent mapToEvent(File file, byte[] fileContent) {
         return S3ObjectUploadEvent.builder()
                 .objectId(file.getId())
-                .s3Key(file.getS3Key())
+                .s3Key(file.getObjectUUID().toString())
                 .bucketName(file.getS3Bucket())
                 .fileType(file.getFileType())
                 .fileContent(fileContent)
-                .uploadType(UploadType.FILE)
                 .build();
     }
 }

@@ -26,6 +26,7 @@ public class UserMetadataListener {
 
     @RabbitListener(queues = "folder.create.update-user-metadata.queue")
     public void handleUserMetadataUpdate(UUID userUUID) {
+        System.out.println("Metadata is updated successfully");
         User user = userRepository.findByUserId(userUUID)
                 .orElseThrow(() -> new RuntimeException("User not found with UUID: " + userUUID));
 

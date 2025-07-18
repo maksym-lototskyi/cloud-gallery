@@ -19,13 +19,8 @@ public class Folder extends FolderItem {
     private List<FolderItem> children;
 
     @Transient
+    @Override
     public String getFullPath(){
-        String parentPath = getParentFolder() != null ? getParentFolder().getFullPath() : "";
-        return parentPath + getName() + "/";
-    }
-
-    @Transient
-    public String getS3Key(){
-        return getUserUUID() + "/" + getFullPath();
+        return super.getFullPath() +  "/";
     }
 }

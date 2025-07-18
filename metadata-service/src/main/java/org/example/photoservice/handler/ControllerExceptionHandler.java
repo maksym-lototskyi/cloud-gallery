@@ -1,7 +1,9 @@
 package org.example.photoservice.handler;
 
+import org.example.photoservice.exception.DuplicateNameException;
 import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.exception.PhotoUploadException;
+import org.example.photoservice.exception.RootFolderRenameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -28,6 +30,18 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNotFoundException(NotFoundException ex) {
         return ex.getMessage();
+    }
+
+    @ExceptionHandler(DuplicateNameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleDuplicateName(DuplicateNameException e){
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(RootFolderRenameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handelRootFolderRename(RootFolderRenameException e){
+        return e.getMessage();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

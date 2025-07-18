@@ -2,7 +2,6 @@ package org.example.photoservice.controller;
 
 import org.example.photoservice.aspects.AccessPermission;
 import org.example.photoservice.dto.FileResponseDto;
-import org.example.photoservice.helpers.UserAccessPermissionChecker;
 import org.example.photoservice.dto.FilePreviewResponseDto;
 import org.example.photoservice.service.FileService;
 import org.springframework.http.MediaType;
@@ -28,14 +27,11 @@ public class FileController {
     @PostMapping(path = "/upload/folder/{folderId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @AccessPermission(idParam = "folderId")
     public ResponseEntity<String> uploadPhotos(
-            Authentication auth,
             @PathVariable UUID folderId,
             @RequestParam("files") MultipartFile[] files
     ) {
-        UUID userId = extractUserIdFromAuthentication(auth);
-
         for (MultipartFile file : files) {
-            fileService.uploadPhoto(file, folderId, userId);
+            fileService.uploadPhoto(file, folderId);
         }
 
         return ResponseEntity.ok("Photos uploaded");

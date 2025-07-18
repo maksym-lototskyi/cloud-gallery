@@ -11,5 +11,4 @@ import lombok.Setter;
 @NoArgsConstructor
 public class S3ObjectUploadResultEvent {
     private Long objectId;
-    private UploadType uploadType;
 }

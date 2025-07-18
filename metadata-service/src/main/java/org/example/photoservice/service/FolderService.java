@@ -44,7 +44,6 @@ public class FolderService {
                 ,s3Properties
         );
         folder = folderRepository.save(folder);
-        rabbitTemplate.convertAndSend("s3-exchange", "s3-upload-key", FolderMapper.mapToEvent(folder));
 
         return FolderMapper.mapToFolderResponseDto(folder);
     }
@@ -60,7 +59,7 @@ public class FolderService {
         Folder folder = folderRepository.findByObjectUUID(folderId)
                 .orElseThrow(() -> new NotFoundException("Folder not found with id: " + folderId));
 
-        return FolderMapper.mapToFolderContentDto(folder, folderItemRepository.findAllByParentFolder(folder)
+        return FolderMapper.mapToFolderContentDto(folder, folderItemRepository.findAllByParentFolderAndUploadTimeIsNotNull(folder)
                 .stream()
                 .map(registry::map)
                 .collect(Collectors.toList()));

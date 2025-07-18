@@ -16,6 +16,5 @@ public class S3ObjectUploadEvent {
     private String bucketName;
     private byte[] fileContent;
     private String fileType;
-    private UploadType uploadType;
 }
 

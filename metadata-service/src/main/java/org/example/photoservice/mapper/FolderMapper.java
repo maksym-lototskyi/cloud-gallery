@@ -5,26 +5,15 @@ import org.example.photoservice.dto.FolderContentResponseDto;
 import org.example.photoservice.dto.FolderItemResponseDto;
 import org.example.photoservice.dto.FolderResponseDto;
 import org.example.photoservice.events.S3ObjectUploadEvent;
-import org.example.photoservice.events.UploadType;
 import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.UploadStatus;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 public class FolderMapper {
-
-    public static S3ObjectUploadEvent mapToEvent(Folder folder){
-        return S3ObjectUploadEvent.builder()
-                .bucketName(folder.getS3Bucket())
-                .objectId(folder.getId())
-                .s3Key(folder.getS3Key())
-                .fileContent(null)
-                .fileType(null)
-                .uploadType(UploadType.FOLDER)
-                .build();
-    }
 
     public static Folder mapToFolder(String name, Folder parent, UUID userId, S3Properties s3Properties) {
         return Folder.builder()
@@ -32,7 +21,7 @@ public class FolderMapper {
                 .userUUID(userId)
                 .name(name)
                 .parentFolder(parent)
-                .uploadStatus(UploadStatus.PENDING)
+                .uploadTime(LocalDateTime.now())
                 .s3Bucket(s3Properties.getBucketName())
                 .build();
     }
