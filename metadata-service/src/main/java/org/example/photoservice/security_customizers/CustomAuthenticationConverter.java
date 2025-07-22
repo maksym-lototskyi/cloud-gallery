@@ -6,22 +6,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CustomAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
     private final Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new CustomGrantedAuthorityConverter();
 
-    public CustomAuthenticationConverter() {
-    }
-
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
-        CustomPrincipal principal = CustomPrincipal.builder()
-                .userId(UUID.fromString(jwt.getClaim("user_id")))
-                .username(jwt.getClaim("sub"))
-                .roles(jwt.getClaim("roles"))
-                .build();
-        return new CustomJwtAuthenticationToken(authorities, jwt, principal);
+        UUID userId = UUID.fromString(jwt.getClaim("user_id"));
+        return new CustomJwtAuthenticationToken(authorities, jwt, userId);
     }
 }

@@ -34,6 +34,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -87,7 +88,7 @@ public class SecurityConfig {
         return new JdbcRegisteredClientRepository(jdbcTemplate);
     }*/
 
-    @Bean
+    /*@Bean
     public RegisteredClientRepository clientRepository(){
         RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("name")
@@ -101,7 +102,7 @@ public class SecurityConfig {
 
 
         return new InMemoryRegisteredClientRepository(client);
-    }
+    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -130,17 +131,14 @@ public class SecurityConfig {
         return (context) -> {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
                 Authentication authentication = context.getPrincipal();
-                System.out.println(authentication.getPrincipal().getClass());
-                System.out.println("abc");
+
+                context.getClaims().claim("roles", authentication.getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()));
+
                 if(authentication.getPrincipal() instanceof CustomUserDetails details) {
-                    System.out.println("def");
-                    context.getClaims().claims((claims) -> {
-                        claims.put("roles", details.getAuthorities()
-                                .stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toList()));
-                        claims.put("user_id", details.getUserId());
-                    });
+                    context.getClaims().claim("user_id", details.getUserId());
                 }
             }
         };

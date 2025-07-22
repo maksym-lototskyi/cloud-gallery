@@ -12,13 +12,8 @@ import java.util.stream.Collectors;
 public class CustomGrantedAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
-        Collection<GrantedAuthority> scopes = new JwtGrantedAuthoritiesConverter().convert(jwt);
-
-        List<GrantedAuthority> roles = jwt.getClaimAsStringList("roles").stream()
+        return jwt.getClaimAsStringList("roles").stream()
                 .map(role -> (GrantedAuthority) () -> role)
                 .collect(Collectors.toList());
-
-        roles.addAll(scopes);
-        return roles;
     }
 }
