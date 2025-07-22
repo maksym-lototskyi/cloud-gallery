@@ -1,9 +1,12 @@
 package org.example.authserver.service;
 
 import org.example.authserver.dto.ClientRequestDto;
+import org.example.authserver.dto.ClientResponseDto;
 import org.example.authserver.mapper.ClientMapper;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ClientRegistrationService {
@@ -13,7 +16,9 @@ public class ClientRegistrationService {
         this.clientRepository = clientRepository;
     }
 
-    public void registerClient(ClientRequestDto client) {
-        clientRepository.save(ClientMapper.mapToRegisteredClient(client));
+    public ClientResponseDto registerClient(ClientRequestDto client) {
+        RegisteredClient registeredClient = ClientMapper.mapToRegisteredClient(client);
+        clientRepository.save(registeredClient);
+        return ClientMapper.mapToResponseDto(registeredClient);
     }
 }

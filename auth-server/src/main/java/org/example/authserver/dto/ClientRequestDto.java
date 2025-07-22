@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.authserver.validation.ValidAuthMethods;
-import org.example.authserver.validation.ValidScopes;
-import org.example.authserver.validation.ValidUris;
+import org.example.authserver.validation.*;
 
 import java.util.List;
 
@@ -16,6 +14,7 @@ import java.util.List;
 public class ClientRequestDto {
     @NotNull
     @NotBlank
+    @UniqueClientId
     private String clientId;
     @NotNull
     @NotBlank
@@ -30,4 +29,6 @@ public class ClientRequestDto {
     private List<String> postLogoutRedirectUris;
     @ValidScopes
     private List<String> scopes;
+    @ValidGrantTypes
+    private List<String> grantTypes;
 }

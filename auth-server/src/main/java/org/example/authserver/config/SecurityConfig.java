@@ -73,12 +73,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/register/client").hasRole("ADMIN")
-                        .requestMatchers("/register/user").permitAll()
+                        .requestMatchers("/register/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                //.httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults());
+                .formLogin(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
@@ -123,6 +122,7 @@ public class SecurityConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
+                //.oidcClientRegistrationEndpoint("/register/client")
                 .build();
     }
 

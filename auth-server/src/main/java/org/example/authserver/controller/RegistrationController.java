@@ -2,6 +2,7 @@ package org.example.authserver.controller;
 
 import jakarta.validation.Valid;
 import org.example.authserver.dto.ClientRequestDto;
+import org.example.authserver.dto.ClientResponseDto;
 import org.example.authserver.dto.UserRequestDto;
 import org.example.authserver.dto.UserResponseDto;
 import org.example.authserver.service.ClientRegistrationService;
@@ -35,9 +36,9 @@ public class RegistrationController {
 
 
     @PostMapping("/client")
-    public ResponseEntity<String> registerClient(@Valid @RequestBody ClientRequestDto requestDto) {
-        clientRegistrationService.registerClient(requestDto);
-        return new ResponseEntity<>("Client registered successfully", HttpStatus.CREATED);
+    public ResponseEntity<ClientResponseDto> registerClient(@Valid @RequestBody ClientRequestDto requestDto) {
+        var result = clientRegistrationService.registerClient(requestDto);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException .class)

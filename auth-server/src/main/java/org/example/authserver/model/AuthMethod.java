@@ -14,10 +14,6 @@ public class AuthMethod {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @ManyToMany
-    @JoinTable(
-            name = "client_auth_methods",
-            joinColumns = @JoinColumn(name = "auth_method_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id"))
+    @ManyToMany(mappedBy = "authMethods")
     private List<Client> clients;
 }

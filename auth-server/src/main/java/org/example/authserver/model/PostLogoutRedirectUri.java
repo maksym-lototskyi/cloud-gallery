@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@NoArgsConstructor
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class RedirectUri {
+@Builder
+public class PostLogoutRedirectUri {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,4 +17,8 @@ public class RedirectUri {
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;
+
+    public PostLogoutRedirectUri(String uri) {
+        this.uri = uri;
+    }
 }
