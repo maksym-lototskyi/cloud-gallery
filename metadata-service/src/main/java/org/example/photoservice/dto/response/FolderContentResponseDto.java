@@ -1,4 +1,4 @@
-package org.example.photoservice.dto;
+package org.example.photoservice.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

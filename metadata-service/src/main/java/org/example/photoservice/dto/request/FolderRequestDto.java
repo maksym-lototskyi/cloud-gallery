@@ -1,4 +1,4 @@
-package org.example.photoservice.dto;
+package org.example.photoservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +16,7 @@ import java.util.UUID;
 @Validated
 public class FolderRequestDto implements Movable {
     @NotBlank(message = "Folder name cannot be blank")
+    @NotNull(message = "Folder name cannot be null")
     private String name;
     @NotNull(message = "Parent folder ID cannot be null")
     private UUID parentFolderId;

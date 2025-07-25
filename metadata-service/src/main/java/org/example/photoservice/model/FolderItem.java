@@ -35,6 +35,7 @@ public abstract class FolderItem {
     private UUID objectUUID;
     @Column(name="user_uuid", nullable = false)
     private UUID userUUID;
+    private boolean isDeleted = false;
 
     @Transient
     public String getFullPath(){

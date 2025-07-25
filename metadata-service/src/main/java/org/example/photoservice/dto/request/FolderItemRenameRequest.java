@@ -1,4 +1,4 @@
-package org.example.photoservice.dto;
+package org.example.photoservice.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,12 +1,10 @@
 package org.example.photoservice.mapper;
 
 import org.example.photoservice.S3Properties;
-import org.example.photoservice.dto.FolderContentResponseDto;
-import org.example.photoservice.dto.FolderItemResponseDto;
-import org.example.photoservice.dto.FolderResponseDto;
-import org.example.photoservice.events.S3ObjectUploadEvent;
+import org.example.photoservice.dto.response.FolderContentResponseDto;
+import org.example.photoservice.dto.response.FolderItemResponseDto;
+import org.example.photoservice.dto.response.FolderResponseDto;
 import org.example.photoservice.model.Folder;
-import org.example.photoservice.model.UploadStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

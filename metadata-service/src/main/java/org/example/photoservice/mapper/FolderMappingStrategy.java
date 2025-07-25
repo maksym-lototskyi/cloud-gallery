@@ -1,6 +1,6 @@
 package org.example.photoservice.mapper;
 
-import org.example.photoservice.dto.FolderItemResponseDto;
+import org.example.photoservice.dto.response.FolderItemResponseDto;
 import org.example.photoservice.model.Folder;
 import org.example.photoservice.model.FolderItem;
 import org.springframework.stereotype.Component;

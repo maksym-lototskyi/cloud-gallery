@@ -1,14 +1,17 @@
 package org.example.photoservice.controller;
 
+import jakarta.validation.Valid;
 import org.example.photoservice.aspects.AccessPermission;
-import org.example.photoservice.dto.FolderContentResponseDto;
-import org.example.photoservice.dto.FolderRequestDto;
-import org.example.photoservice.dto.FolderResponseDto;
+import org.example.photoservice.dto.response.FolderContentResponseDto;
+import org.example.photoservice.dto.request.FolderRequestDto;
+import org.example.photoservice.dto.response.FolderResponseDto;
 import org.example.photoservice.service.FolderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.UUID;
 
 import static org.example.photoservice.helpers.UserIdExtractor.extractUserIdFromAuthentication;
@@ -23,9 +26,15 @@ public class FolderController {
     }
 
     @PostMapping
-    public ResponseEntity<FolderResponseDto> createFolder(@RequestBody FolderRequestDto requestDto, Authentication authentication){
+    public ResponseEntity<FolderResponseDto> createFolder(@RequestBody @Valid FolderRequestDto requestDto, Authentication authentication){
         FolderResponseDto createdFolder = folderService.createFolder(requestDto, extractUserIdFromAuthentication(authentication));
-        return ResponseEntity.ok(createdFolder);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{folderId}/content")
+                .buildAndExpand(createdFolder.getFileItemId())
+                .toUri();
+
+        return ResponseEntity.created(uri).body(createdFolder);
     }
 
     @GetMapping("/root")

@@ -1,4 +1,4 @@
-package org.example.photoservice.dto;
+package org.example.photoservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

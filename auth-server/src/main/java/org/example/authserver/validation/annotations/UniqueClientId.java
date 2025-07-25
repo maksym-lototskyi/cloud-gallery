@@ -1,7 +1,8 @@
-package org.example.authserver.validation;
+package org.example.authserver.validation.annotations;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+import org.example.authserver.validation.validators.UniqueClientIdValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

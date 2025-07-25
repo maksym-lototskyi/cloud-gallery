@@ -57,7 +57,6 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain authServerFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer configurer = new OAuth2AuthorizationServerConfigurer();
-
         http.securityMatcher(configurer.getEndpointsMatcher())
                 .with(configurer, asc -> asc.oidc(Customizer.withDefaults()))
                 .exceptionHandling(ehc -> ehc.authenticationEntryPoint(
@@ -81,27 +80,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-    /*@Bean
-    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
-        return new JdbcRegisteredClientRepository(jdbcTemplate);
-    }*/
-
-    /*@Bean
-    public RegisteredClientRepository clientRepository(){
-        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("name")
-                .clientSecret(passwordEncoder().encode("secret"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .scope(OidcScopes.OPENID)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("https://spring.io/authorized")
-                .build();
-
-
-        return new InMemoryRegisteredClientRepository(client);
-    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder(){

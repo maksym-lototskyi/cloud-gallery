@@ -1,11 +1,11 @@
 package org.example.photoservice.service;
 
 import org.example.photoservice.S3Properties;
-import org.example.photoservice.dto.FilePreviewResponseDto;
-import org.example.photoservice.dto.FileResponseDto;
+import org.example.photoservice.dto.response.FilePreviewResponseDto;
+import org.example.photoservice.dto.response.FileResponseDto;
 import org.example.photoservice.exception.NotFoundException;
-import org.example.photoservice.exception.PhotoUploadException;
 import org.example.photoservice.helpers.FileUtils;
+import org.example.photoservice.helpers.FolderDeletionChecker;
 import org.example.photoservice.helpers.S3LinkPresigner;
 import org.example.photoservice.mapper.FileMapper;
 import org.example.photoservice.model.File;
@@ -48,6 +48,10 @@ public class FileService {
         Folder folder = folderRepository.findByObjectUUID(folderId)
                 .orElseThrow(() -> new NotFoundException("Folder with id " + folderId + " not found"));
 
+        if(!FolderDeletionChecker.isAccessible(folder)){
+            throw new NotFoundException("Folder with id " + folderId + " not found");
+        }
+
         File fileToSave = FileMapper.mapToFile(file, folder, s3Properties.getBucketName());
 
         adjustFileName(file, folderId, fileToSave);
@@ -72,6 +76,10 @@ public class FileService {
         File file = fileRepository.findByObjectUUID(fileUUID)
                 .orElseThrow(() -> new NotFoundException("No file found with id: " + fileUUID));
 
+        if(FolderDeletionChecker.isAccessible(file)){
+            throw new NotFoundException("No file found with id: " + fileUUID);
+        }
+
         return FileMapper.mapToDetails(file, s3LinkPresigner.generateGetPresignURI(file.getS3Bucket(), file.getObjectUUID().toString()));
     }
 
@@ -80,6 +88,7 @@ public class FileService {
         return fileRepository.findAllByUploadStatusAndUserUUID(UploadStatus.UPLOADED, userId, Pageable.ofSize(pageSize).withPage(page))
                 .getContent()
                 .stream()
+                .filter(f -> FolderDeletionChecker.isAccessible(f))
                 .map(FileMapper::mapToFilePreview)
                 .toList();
     }
@@ -87,6 +96,10 @@ public class FileService {
     public void deleteFileById(UUID objectId) {
         File file = fileRepository.findByObjectUUID(objectId)
                 .orElseThrow(() -> new NotFoundException("No file found with id: " + objectId));
+
+        if(FolderDeletionChecker.isAccessible(file)){
+            throw new NotFoundException("No file found with id: " + objectId);
+        }
 
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(file.getS3Bucket())

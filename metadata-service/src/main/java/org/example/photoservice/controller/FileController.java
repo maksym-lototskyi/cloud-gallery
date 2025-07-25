@@ -1,8 +1,8 @@
 package org.example.photoservice.controller;
 
 import org.example.photoservice.aspects.AccessPermission;
-import org.example.photoservice.dto.FileResponseDto;
-import org.example.photoservice.dto.FilePreviewResponseDto;
+import org.example.photoservice.dto.response.FileResponseDto;
+import org.example.photoservice.dto.response.FilePreviewResponseDto;
 import org.example.photoservice.service.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class FileController {
             fileService.uploadPhoto(file, folderId);
         }
 
-        return ResponseEntity.ok("Photos uploaded");
+        return ResponseEntity.accepted().body("Files uploaded successfully");
     }
 
     @GetMapping(path = "{fileId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,6 +58,6 @@ public class FileController {
     @AccessPermission(idParam = "fileId")
     public ResponseEntity<String> deletePhoto(@PathVariable UUID fileId) {
         fileService.deleteFileById(fileId);
-        return ResponseEntity.ok("File deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 }

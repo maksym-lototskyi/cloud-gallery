@@ -17,7 +17,6 @@ import java.util.List;
 public class Folder extends FolderItem {
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FolderItem> children;
-
     @Transient
     @Override
     public String getFullPath(){

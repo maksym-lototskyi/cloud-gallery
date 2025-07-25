@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = UniqueNameInFolderValidator.class)
 public @interface UniqueNameInFolder {
-    String message() default "The name should be unique in the folder";
+    String message() default "Folder already contains a file with this name";
 
     Class<?>[] groups() default {};
 

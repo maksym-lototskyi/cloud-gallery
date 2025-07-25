@@ -1,8 +1,9 @@
-package org.example.authserver.validation;
+package org.example.authserver.validation.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.example.authserver.repository.ClientRepository;
+import org.example.authserver.validation.annotations.UniqueClientId;
 import org.springframework.stereotype.Component;
 
 @Component

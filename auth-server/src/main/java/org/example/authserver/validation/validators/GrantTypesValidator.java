@@ -1,4 +1,4 @@
-package org.example.authserver.validation;
+package org.example.authserver.validation.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.example.authserver.model.GrantType;
 import org.example.authserver.repository.GrantTypeRepository;
+import org.example.authserver.validation.annotations.ValidGrantTypes;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 import java.util.Set;

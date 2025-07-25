@@ -14,10 +14,18 @@ public class RabbitMqConfig {
         return new Queue("s3-object-queue", true);
     }
 
+    @Bean
+    public Queue folderDeleteQueue() {
+        return new Queue("folder-content-delete-queue", true);
+    }
 
     @Bean
     public Exchange exchange(){
         return new DirectExchange("s3-exchange", true, false);
+    }
+
+    @Bean Exchange folderDeleteExchange() {
+        return new DirectExchange("folder.delete.exchange", true, false);
     }
 
     @Bean
@@ -25,6 +33,14 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(s3ObjectQueue)
                 .to(exchange)
                 .with("s3-upload-key")
+                .noargs();
+    }
+
+    @Bean
+    public Binding folderDeleteBinding(Queue folderDeleteQueue, Exchange folderDeleteExchange) {
+        return BindingBuilder.bind(folderDeleteQueue)
+                .to(folderDeleteExchange)
+                .with("folder.delete.key")
                 .noargs();
     }
 

@@ -1,7 +1,7 @@
 package org.example.photoservice.mapper;
 
-import org.example.photoservice.dto.FilePreviewResponseDto;
-import org.example.photoservice.dto.FileResponseDto;
+import org.example.photoservice.dto.response.FilePreviewResponseDto;
+import org.example.photoservice.dto.response.FileResponseDto;
 import org.example.photoservice.events.S3ObjectUploadEvent;
 import org.example.photoservice.model.File;
 import org.example.photoservice.model.Folder;

@@ -1,7 +1,8 @@
-package org.example.authserver.validation;
+package org.example.authserver.validation.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.example.authserver.validation.annotations.ValidUris;
 
 import java.net.URI;
 import java.net.URISyntaxException;

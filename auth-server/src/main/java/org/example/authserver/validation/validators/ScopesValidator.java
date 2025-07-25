@@ -1,9 +1,10 @@
-package org.example.authserver.validation;
+package org.example.authserver.validation.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.example.authserver.model.Scope;
 import org.example.authserver.repository.ScopeRepository;
+import org.example.authserver.validation.annotations.ValidScopes;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.stereotype.Component;
 

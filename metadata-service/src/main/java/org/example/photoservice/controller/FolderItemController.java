@@ -1,8 +1,8 @@
 package org.example.photoservice.controller;
 
-import org.example.photoservice.dto.FileItemMoveRequestDto;
-import org.example.photoservice.dto.FolderItemRenameRequest;
-import org.example.photoservice.dto.FolderItemResponseDto;
+import org.example.photoservice.dto.request.FileItemMoveRequestDto;
+import org.example.photoservice.dto.request.FolderItemRenameRequest;
+import org.example.photoservice.dto.response.FolderItemResponseDto;
 import org.example.photoservice.service.FolderItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,9 +1,10 @@
-package org.example.authserver.validation;
+package org.example.authserver.validation.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.example.authserver.model.AuthMethod;
 import org.example.authserver.repository.AuthMethodRepository;
+import org.example.authserver.validation.annotations.ValidAuthMethods;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

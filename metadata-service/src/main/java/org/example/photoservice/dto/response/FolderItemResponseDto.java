@@ -1,4 +1,4 @@
-package org.example.photoservice.dto;
+package org.example.photoservice.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

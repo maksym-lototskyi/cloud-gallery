@@ -19,9 +19,17 @@ public class RabbitMqConfig {
     public Queue photoUploadFailedQueue(){
         return new Queue("s3-upload-failed-queue", true);
     }
+    @Bean Queue folderDeleteRollbackQueue() {
+        return new Queue("folder-delete-rollback-queue", true);
+    }
     @Bean
     public Exchange exchange() {
         return new DirectExchange("s3-upload-exchange", true, false);
+    }
+
+    @Bean
+    public Exchange folderDeleteRollbackExchange() {
+        return new DirectExchange("folder.delete.rollback.exchange", true, false);
     }
 
     @Bean
@@ -40,6 +48,14 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(metadataCreateQueue())
                 .to(creationExchange)
                 .with("folder.create.metadata");
+    }
+
+    @Bean
+    public Binding folderDeleteRollbackBinding(Queue folderDeleteRollbackQueue, Exchange folderDeleteRollbackExchange) {
+        return BindingBuilder.bind(folderDeleteRollbackQueue)
+                .to(folderDeleteRollbackExchange)
+                .with("folder.delete.rollback.key")
+                .noargs();
     }
 
     @Bean

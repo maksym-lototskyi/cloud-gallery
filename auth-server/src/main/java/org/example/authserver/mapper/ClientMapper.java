@@ -8,7 +8,9 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,9 @@ public class ClientMapper {
                 .authorizationGrantTypes(grants -> grants.addAll(client.getGrantTypes().stream()
                         .map(g -> new AuthorizationGrantType(g.getName()))
                         .toList()))
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofDays(1))
+                        .build())
                 .build();
     }
 

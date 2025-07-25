@@ -3,7 +3,7 @@ package org.example.photoservice.handler;
 import org.example.photoservice.exception.DuplicateNameException;
 import org.example.photoservice.exception.NotFoundException;
 import org.example.photoservice.exception.PhotoUploadException;
-import org.example.photoservice.exception.RootFolderRenameException;
+import org.example.photoservice.exception.RootFolderMutationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -38,16 +38,16 @@ public class ControllerExceptionHandler {
         return e.getMessage();
     }
 
-    @ExceptionHandler(RootFolderRenameException.class)
+    @ExceptionHandler(RootFolderMutationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handelRootFolderRename(RootFolderRenameException e){
+    public String handelRootFolderRename(RootFolderMutationException e){
         return e.getMessage();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, List<String>> handle(MethodArgumentNotValidException e){
-        return e.getBindingResult()
+        Map<String, List<String>> errors =  e.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .collect(Collectors.groupingBy(
@@ -56,5 +56,15 @@ public class ControllerExceptionHandler {
                                 FieldError::getDefaultMessage, Collectors.toList()
                         )
                 ));
+
+        errors.put("global_errors",
+                e.getBindingResult()
+                        .getGlobalErrors()
+                        .stream()
+                        .map(o -> o.getDefaultMessage())
+                        .collect(Collectors.toList())
+        );
+
+        return errors;
     }
 }
