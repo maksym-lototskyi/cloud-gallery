@@ -11,9 +11,9 @@ import java.util.UUID;
 @Setter
 @Builder
 public class FolderContentResponseDto {
-    List<FolderItemResponseDto> folderItems;
-    String folderName;
-    UUID parentId;
-    UUID folderId;
-    String folderPath;
+    private List<FolderItemResponseDto> folderItems;
+    private String folderName;
+    private UUID parentId;
+    private UUID folderId;
+    private String folderPath;
 }

@@ -48,7 +48,7 @@ public class FileService {
         Folder folder = folderRepository.findByObjectUUID(folderId)
                 .orElseThrow(() -> new NotFoundException("Folder with id " + folderId + " not found"));
 
-        if(!FolderDeletionChecker.isAccessible(folder)){
+        if (!FolderDeletionChecker.isAccessible(folder)) {
             throw new NotFoundException("Folder with id " + folderId + " not found");
         }
 
@@ -76,7 +76,7 @@ public class FileService {
         File file = fileRepository.findByObjectUUID(fileUUID)
                 .orElseThrow(() -> new NotFoundException("No file found with id: " + fileUUID));
 
-        if(FolderDeletionChecker.isAccessible(file)){
+        if (FolderDeletionChecker.isAccessible(file)) {
             throw new NotFoundException("No file found with id: " + fileUUID);
         }
 
@@ -97,7 +97,7 @@ public class FileService {
         File file = fileRepository.findByObjectUUID(objectId)
                 .orElseThrow(() -> new NotFoundException("No file found with id: " + objectId));
 
-        if(FolderDeletionChecker.isAccessible(file)){
+        if (FolderDeletionChecker.isAccessible(file)) {
             throw new NotFoundException("No file found with id: " + objectId);
         }
 
@@ -108,6 +108,4 @@ public class FileService {
 
         fileRepository.delete(file);
     }
-
-
 }
